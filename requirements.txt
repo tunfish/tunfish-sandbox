@@ -1,0 +1,9 @@
+autobahn
+crossbar
+sqlalchemy
+sqlalchemy-utils
+psycopg2
+pyroute2
+msgpack
+pysodium
+python-iptables

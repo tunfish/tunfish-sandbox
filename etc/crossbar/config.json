@@ -1,0 +1,53 @@
+{
+  "version": 2,
+  "controller": {},
+  "workers": [
+    {
+      "type": "router",
+      "realms": [
+        {
+          "name": "tf_cb_router",
+          "roles": [
+            {
+              "name": "anonymous",
+              "permissions": [
+                {
+                  "uri": "",
+                  "match": "prefix",
+                  "allow": {
+                    "call": true,
+                    "register": true,
+                    "publish": true,
+                    "subscribe": true
+                  },
+                  "disclose": {
+                    "caller": false,
+                    "publisher": false
+                  },
+                  "cache": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "transports": [
+        {
+          "type": "websocket",
+          "endpoint": {
+            "type": "tcp",
+            "port": 8080,
+            "tls": {
+              "key": "crossbar.key",
+              "certificate": "crossbar.pem",
+              "ca_certificates": [
+                "ca.pem"
+              ]
+            }
+          },
+          "url": "ws://127.0.0.1:8080/ws"
+        }
+      ]
+    }
+  ]
+}

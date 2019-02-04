@@ -1,0 +1,48 @@
+   - name: update system
+     apt:
+       upgrade: full
+
+   - name: Install postgres
+     apt:
+       name: postgresql
+       state: present
+       update_cache: yes
+
+   - name: Install postgresql-server-dev-10
+     apt:
+       name: postgresql-server-dev-10
+       state: present
+       update_cache: yes
+
+   - name: Install Python 3 Metapackage
+     apt:
+       name: python3
+       state: present
+       update_cache: yes
+
+   - name: Install pip3
+     apt:
+       name: python3-pip
+       state: present
+       update_cache: yes
+
+   - apt_repository:
+       repo: ppa:wireguard/wireguard
+
+   - name: Install wireguard
+     apt:
+       name: wireguard
+       state: present
+       update_cache: yes
+
+   - name: Install 'virtualenv' package
+     pip:
+       name: virtualenv
+       executable: pip3
+
+   - name: Create virtualenv
+     become: no
+     pip:
+       virtualenv: "{{ venv_path }}"
+       virtualenv_python: python3
+       requirements: "{{ requirements_path }}"

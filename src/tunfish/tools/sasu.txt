@@ -1,0 +1,14 @@
+# CA
+openssl genrsa -aes256 -out ca.key 4096
+openssl req -new -x509 -nodes -key ca.key -out ca.pem -days 1000
+
+# Cert
+openssl genrsa -out server.key 4096
+openssl genrsa -out client.key 4096
+openssl req -new -key server.key -out server.csr
+openssl req -new -key client.key -out client.csr
+openssl x509 -CA ca.pem -CAkey ca.key -CAcreateserial -req -in server.csr -out server.pem -days 365
+openssl x509 -CA ca.pem -CAkey ca.key -CAcreateserial -req -in client.csr -out client.pem -days 365
+
+# Show
+openssl x509 -in server.pem -text -noout
