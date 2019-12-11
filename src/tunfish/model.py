@@ -4,8 +4,8 @@ from sqlalchemy import Integer, String, Date, Boolean
 from sqlalchemy import Sequence
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
-from pyroute2 import IPRoute
-from tunfish.network.wireguard import WireGuard
+from pyroute2 import IPRoute, WireGuard
+#from tunfish.network.wireguard import WireGuard
 
 
 Base = declarative_base()
@@ -37,7 +37,7 @@ class Router(Base):
     endpoint = Column('endpoint', String(32), default=None)
     allowed_ips = Column('allowed_ips', String(32), default='0.0.0.0/0')
     dev = IPRoute()
-    wg = WireGuard()
+    wg = WireGuard
 
     def __init__(self, *args, **kwargs):
 
