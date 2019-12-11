@@ -30,8 +30,6 @@ class Component(ApplicationSession):
 
         # data json dict
         def openInterface(data):
-            # POSTFIX = "gw"
-            POSTFIX = ""
             print(f"data: {data}")
 
             # TODO: create wg keys
@@ -52,28 +50,32 @@ class Component(ApplicationSession):
             import pysodium
             from base64 import b64encode
             keys = pysodium.crypto_box_keypair()
-            priv = b64encode(keys[1])
-            pub = b64encode(keys[0])
 
             # TODO: open interface
             router = Router()
-            router.device_id = data['device_id'] + POSTFIX
+            router.device_id = data['device_id']
             print(f"{data}")
 
-            router.dev.link('add', ifname=data['device_id'] + POSTFIX, kind='wireguard')
-            idx = router.dev.link_lookup(ifname=data['device_id'] + POSTFIX)[0]
+            router.dev.link('add', ifname=data['device_id'], kind='wireguard')
+            idx = router.dev.link_lookup(ifname=data['device_id'])[0]
             print(f"IDX: {idx}")
             # router.dev.addr('add', index=idx, address='192.168.42.50', mask=24)
             router.dev.addr('add', index=idx, local='192.168.42.50', mask=32, address='192.168.100.10')
             print(f"setup config")
-            cfg = {
-                "interface": data['device_id'] + POSTFIX,
-                "listen_port": 42001,
-                "private_key": priv,
-                "peers": [{"public_key": data["wgpubkey"], "allowed_ips": ["0.0.0.0/0"]}]
-            }
 
-            router.wg.set_device(ifname=data['device_id'] + POSTFIX, config=cfg)
+            # cfg = {
+            #     "interface": data['device_id'] + POSTFIX,
+            #     "listen_port": 42001,
+            #     "private_key": priv,
+            #     "peers": [{"public_key": data["wgpubkey"], "allowed_ips": ["0.0.0.0/0"]}]
+            # }
+
+            # router.wg.set_device(ifname=data['device_id'] + POSTFIX, config=cfg)
+            # setup wireguard interface
+            router.wg.set(interface=data['device_id'], private_key=b64encode(keys[0]), listen_port=42235)
+            # add peer
+            cfg = {'public_key': b64encode(data["wgpubkey"]), 'allowed_ips': ["0.0.0.0/0"]}
+            router.wg.set(interface=data['device_id'], private_key=b64encode(keys[0]), peer=cfg)
 
             print(f"clientpubkey: {len(data['wgpubkey'])}")
             print(f"clientpubkey: {data['wgpubkey']}")
@@ -95,7 +97,7 @@ class Component(ApplicationSession):
             rule.target = target
             chain.insert_rule(rule)
 
-            return pub
+            return b64encode(keys[0])
 
         await self.register(openInterface, u'com.gw.openinterface')
         print("Registered com.gw.openinterface")

@@ -37,16 +37,23 @@ class Component(ApplicationSession):
                 # router.dev.addr('add', index=idx, address=self.data['ip'], mask=24)
                 router.dev.addr('add', index=idx, local=self.data['ip'], mask=32, address='192.168.42.50')
                 print(f"setup config")
-                cfg = {
-                    "interface": self.data['device_id'],
-                    "listen_port": 42002,
-                    "private_key": self.data['wgprvkey'],
-                    "peers": [{"public_key": res['wgpubkey'], "endpoint": res['endpoint'] + ":" + str(res['listen_port']), "allowed_ips": ["0.0.0.0/0"]}]
-                }
+                # cfg = {
+                #     "interface": self.data['device_id'],
+                #     "listen_port": 42002,
+                #     "private_key": self.data['wgprvkey'],
+                #     "peers": [{"public_key": res['wgpubkey'], "endpoint": res['endpoint'] + ":" + str(res['listen_port']), "allowed_ips": ["0.0.0.0/0"]}]
+                # }
                 print(f"res PUBKEY: {res['wgpubkey']}")
 
                 #
-                router.wg.set_device(ifname=self.data['device_id'], config=cfg)
+                # router.wg.set_device(ifname=self.data['device_id'], config=cfg)
+
+                # setup wireguard interface
+                from base64 import b64encode
+                router.wg.set(interface=self.data['device_id'], private_key=b64encode(self.data['wgprvkey']), listen_port=42235)
+                # add peer
+                cfg = {'public_key': b64encode(res["wgpubkey"]), 'endpoint_addr': res['endpoint'], 'endpoint_port': res['listenport'], 'allowed_ips': ['0.0.0.0/0']}
+                router.wg.set(interface=self.data['device_id'], private_key=b64encode(self.data['wgprvkey']), peer=cfg)
 
                 # bring up interface
                 router.dev.link('set', index=idx, state='up')
