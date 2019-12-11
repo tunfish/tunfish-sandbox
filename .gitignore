@@ -2,3 +2,5 @@
 /var
 *.pyc
 /.vagrant
+/.venv*
+*.egg-info
