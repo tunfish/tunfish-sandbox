@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
 
 requires = [
-    'autobahn',
-    'crossbar',
-    'sqlalchemy',
-    'sqlalchemy-utils',
-    #'psycopg2',
-    'pyroute2',
-    'msgpack',
-    'pysodium',
-    'python-iptables',
+    'autobahn==19.11.1',
+    'crossbar==19.11.1',
+    'SQLAlchemy==1.3.11',
+    'SQLAlchemy-Utils==0.36.0',
+    #'psycopg2==2.8.4',
+    'pyroute2==0.5.7',
+    'msgpack==0.6.2',
+    'pysodium==0.7.3',
+    'python-iptables==0.14.0',
 ]
 
 extras = {
@@ -56,6 +55,7 @@ setup(name='tunfish',
       author_email='hello@tunfish.org',
       url='https://github.com/tunfish/tunfish-system',
       keywords='',
+      package_dir={'': 'src'},
       packages=find_packages(),
       include_package_data=True,
       package_data={
