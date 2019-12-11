@@ -169,6 +169,15 @@ If you encounter any problems during setup, we may humbly
 refer you to the `<doc/troubleshooting.rst>`_ documentation.
 
 
+********************
+Content attributions
+********************
+
+- Bluefin Tuna image by National Oceanic & Atmospheric Administration (NOAA), Photo Library.
+  http://www.photolib.noaa.gov
+  https://en.wikipedia.org/wiki/File:Bluefin-big.jpg
+
+
 ----
 
 Have fun!
