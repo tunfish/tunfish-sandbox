@@ -8,8 +8,6 @@ def show_version():
 
 
 def start_server():
-    # from server.server import MyServer
-    # server = MyServer()
     from tunfish.server import PortierServer
     server = PortierServer()
     server.start()
@@ -27,3 +25,18 @@ def start_gateway():
     from tunfish.gateway import TunfishGateway
     gateway = TunfishGateway()
     gateway.start(name)
+
+
+def tf_control():
+    args = sys.argv
+    from tunfish.tfctl import TunfishControl
+    ctl = TunfishControl()
+    ctl.start(args)
+
+
+def tf_web():
+    args = sys.argv
+    from tunfish.tfweb import TunfishWeb
+    tfweb = TunfishWeb()
+    #tfweb.start(args)
+    tfweb.start()

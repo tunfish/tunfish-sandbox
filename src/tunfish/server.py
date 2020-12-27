@@ -1,48 +1,39 @@
 from os import environ
 from autobahn.asyncio.wamp import ApplicationSession, ApplicationRunner
-from tunfish.model import Gateway
-from tunfish.database.control import dbc
+from tunfish.wamp.rpcs.PortierRPC import ServerRPC
 
 
 class Component(ApplicationSession):
-    dbc_handler = dbc()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.srv_procedures = ServerRPC(self)
 
     async def onJoin(self, details):
         # data json dict
-        async def RequestGateway(data):
-            print(f"data: {data}")
-            gateway = self.dbc_handler.session.query(Gateway).filter_by(active=True).order_by(Gateway.counter).first()
 
-            pubkey = await self.call(u'com.gw.openinterface', data)
-            print(f"value task: {pubkey}")
+        await self.register(self.srv_procedures.request_gateway, u'com.portier.request_gateway')
+        print("Registered com.portier.request_gateway")
 
-            gw = {
-                "ip": gateway.ip,
-                "name": gateway.name,
-                "wgpubkey": pubkey,
-                "listen_port": 42001,
-                "endpoint": "192.168.100.10"
-            }
-            return gw
+        await self.register(self.srv_procedures.register_gateway, u'com.portier.register_gateway')
+        print("Registered com.portier.register_gateway")
 
-        await self.register(RequestGateway, u'com.portier.requestgateway')
-        print("Registered com.portier.requestgateway")
+        await self.register(self.srv_procedures.request_status, u'com.portier.request_status')
+        print("Registered com.portier.reguest_status")
 
-        def register_gateway(data):
-            gateway = self.dbc_handler.session.query(Gateway).filter_by(name=data['name']).first()
-            print(f"GATEWAY: {gateway}")
-            gateway.active = True
-            self.dbc_handler.session.commit()
+        await self.register(self.srv_procedures.add_network, u'com.portier.add_network')
+        print("Registered com.portier.add_network")
 
-        await self.register(register_gateway, u'com.portier.registergateway')
-        print("Registered com.portier.registergateway")
+        await self.register(self.srv_procedures.add_gateway, u'com.portier.add_gateway')
+        print("Registered com.portier.add_gateway")
 
-        print(f"DETAILS: {details}")
+        await self.register(self.srv_procedures.add_client, u'com.portier.add_client')
+        print("Registered com.portier.add_client")
 
-        def requestStatus():
-            print(f"Status: {self.__dict__}")
+        await self.register(self.srv_procedures.web_get_networks, u'com.portier.get_networks')
+        print("Registered com.portier.get_networks")
 
-        await self.register(requestStatus, u'com.portier.requeststatus')
+        self.publish('com.topic.portier.status', "online")
 
 
 class PortierServer:
@@ -65,7 +56,7 @@ class PortierServer:
         server_ctx.set_ciphers('ECDH+AESGCM')
 
         # url = environ.get("AUTOBAHN_DEMO_ROUTER", u"wss://127.0.0.1:8080/ws")
-        url = environ.get("AUTOBAHN_DEMO_ROUTER", u"wss://192.168.42.1:8080/ws")
+        url = environ.get("AUTOBAHN_DEMO_ROUTER", u"wss://172.16.42.2:8080/ws")
         print(f"URL: {url}")
         if six.PY2 and type(url) == six.binary_type:
             url = url.decode('utf8')

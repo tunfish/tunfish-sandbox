@@ -10,7 +10,8 @@ import iptc
 
 import json
 
-PATH = '/vagrant/config/'
+# PATH = '/vagrant/config/'
+PATH = '/vagrant/etc/tunfish/'
 CERTPATH = '/vagrant/certs/'
 
 
@@ -20,71 +21,51 @@ class Component(ApplicationSession):
 
     async def onJoin(self, details):
 
-        def got(started, msg, f):
-            res = f.result()
+        def got(started, msg, ff):
+            print(f"result received")
+            res = ff.result()
             duration = 1000. * (time.process_time() - started)
             print("{}: {} in {}".format(msg, res, duration))
             if msg == "REQUEST GATEWAY":
                 # TODO: open interface
                 from tunfish.model import Router
                 router = Router()
-                router.device_id = self.data['device_id']
-                print(f"{self.data}")
 
-                router.dev.link('add', ifname=self.data['device_id'], kind='wireguard')
-                idx = router.dev.link_lookup(ifname=self.data['device_id'])[0]
-                print(f"IDX: {idx}")
-                # router.dev.addr('add', index=idx, address=self.data['ip'], mask=24)
-                router.dev.addr('add', index=idx, local=self.data['ip'], mask=32, address='192.168.42.50')
-                print(f"setup config")
-                # cfg = {
-                #     "interface": self.data['device_id'],
-                #     "listen_port": 42002,
-                #     "private_key": self.data['wgprvkey'],
-                #     "peers": [{"public_key": res['wgpubkey'], "endpoint": res['endpoint'] + ":" + str(res['listen_port']), "allowed_ips": ["0.0.0.0/0"]}]
-                # }
-                print(f"res PUBKEY: {res['wgpubkey']}")
-
-                #
-                # router.wg.set_device(ifname=self.data['device_id'], config=cfg)
-
-                # setup wireguard interface
-                from base64 import b64encode
-                router.wg.set(interface=self.data['device_id'], private_key=b64encode(self.data['wgprvkey']), listen_port=42235)
-                # add peer
-                cfg = {'public_key': b64encode(res["wgpubkey"]), 'endpoint_addr': res['endpoint'], 'endpoint_port': res['listenport'], 'allowed_ips': ['0.0.0.0/0']}
-                router.wg.set(interface=self.data['device_id'], private_key=b64encode(self.data['wgprvkey']), peer=cfg)
-
-                # bring up interface
-                router.dev.link('set', index=idx, state='up')
+                # new interface/wg control
+                print(f"new control")
+                router.interface.create(ifname=self.data['device_id'], ip=self.data['ip']+"/"+self.data['mask'], privatekey=self.data['wgprvkey'], listenport=42001)
+                router.interface.addpeer(ifname=self.data['device_id'], publickey=res['wgpubkey'], endpointaddr=res['endpoint'], endpointport=res['listen_port'], keepalive=10, allowedips={'0.0.0.0/0'})
 
                 # set rule
                 # router.dev.rule('del', table=10, src='192.168.100.10/24')
-                router.dev.rule('add', table=10, src='192.168.100.10/24')
+                # router.dev.rule('add', table=10, src='172.16.100.15/16')
+                # router.dev.rule('add', table=10, src='10.0.23.15/16')
+                router.dev.rule('add', table=10, src=self.data['ip']+"/"+self.data['mask'])
                 # set route
                 # router.dev.route('del', table=10, src='192.168.100.10/24', oif=idx)
-                router.dev.route('add', table=10, src='192.168.42.50/24', gateway='192.168.100.10', oif=idx)
+                idx = router.dev.link_lookup(ifname=self.data['device_id'])[0]
+                router.dev.route('add', table=10, src='10.0.42.15/16', gateway='10.0.23.15', oif=idx)
 
                 # iptables
                 chain = iptc.Chain(iptc.Table(iptc.Table.NAT), "POSTROUTING")
                 rule = iptc.Rule()
-                rule.out_interface = "tf0815"
+                rule.out_interface = "tf-0815"
                 target = iptc.Target(rule, "MASQUERADE")
                 rule.target = target
                 chain.insert_rule(rule)
 
         with open(PATH + self.config.extra['v1'] + '.json', 'r') as f:
             self.data = json.load(f)
-
+        print(f"self.data: {self.data}")
         t1 = time.process_time()
 
         # task = self.call(u'com.portier.requestgateway', self.data, options=CallOptions(timeout=0))
-        task = self.call(u'com.portier.requestgateway', self.data)
+        task = self.call(u'com.portier.request_gateway', self.data)
         task.add_done_callback(partial(got, t1, "REQUEST GATEWAY"))
         await asyncio.gather(task)
 
         t1 = time.process_time()
-        task = self.call(u'com.portier.requeststatus')
+        task = self.call(u'com.portier.request_status')
         task.add_done_callback(partial(got, t1, "REQUEST STATUS"))
         await asyncio.gather(task)
 
@@ -123,7 +104,7 @@ class TunfishClient:
         client_ctx.set_ciphers('ECDH+AESGCM')
 
         # url = environ.get("AUTOBAHN_DEMO_ROUTER", u"wss://127.0.0.1:8080/ws")
-        url = environ.get("AUTOBAHN_DEMO_ROUTER", u"wss://192.168.42.1:8080/ws")
+        url = environ.get("AUTOBAHN_DEMO_ROUTER", u"wss://172.16.42.2:8080/ws")
         print(f"URL: {url}")
         if six.PY2 and type(url) == six.binary_type:
             url = url.decode('utf8')

@@ -1,7 +1,7 @@
 autobahn
 crossbar
-sqlalchemy
-sqlalchemy-utils
+SQLAlchemy
+SQLAlchemy-utils
 psycopg2
 pyroute2
 msgpack

@@ -1,0 +1,16 @@
+{
+  "device_id": "tf_0816",
+  "wgprvkey": "wgprvkey",
+  "wgpubkey": "wgprvkey",
+  "ip": "172.16.100.16",
+  "type": "client",
+  "cf": "tf_0816.pem",
+  "kf": "tf_0816.key",
+  "caf": "ca.pem",
+  "wireguard": {
+    "wgprvkey": "prvkey",
+    "wgpubkey": "pub",
+    "vpn_ip": "1.2.3.4",
+    "network": "swarmone"
+  }
+}

@@ -4,8 +4,8 @@ from sqlalchemy import Integer, String, Date, Boolean
 from sqlalchemy import Sequence
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
-from pyroute2 import IPRoute, WireGuard
-#from tunfish.network.wireguard import WireGuard
+from pyroute2 import IPRoute
+from tunfish.network.interface import Interface
 
 
 Base = declarative_base()
@@ -29,15 +29,16 @@ class Router(Base):
     sw_version = Column('sw_version', String(32), default=None)
     blocked = Column('blocked', Boolean, default=False)
 
+    network_id = Column(Integer, ForeignKey('network.id'))
+    network = relationship("Network", back_populates="router")
+
     gateway_id = Column(Integer, ForeignKey('gateway.id'))
     gateway = relationship("Gateway", back_populates="router")
 
-# config for wg interface
+    # config for wg interface
     listenport = Column('listenport', Integer, default=42001)
     endpoint = Column('endpoint', String(32), default=None)
     allowed_ips = Column('allowed_ips', String(32), default='0.0.0.0/0')
-    dev = IPRoute()
-    wg = WireGuard
 
     def __init__(self, *args, **kwargs):
 
@@ -57,6 +58,9 @@ class Router(Base):
         self.listenport = kwargs.get('listenport')
         self.endpoint = kwargs.get('endpoint')
         self.allowed_ips = kwargs.get('allowed_ips')
+
+        self.interface = Interface()
+        self.dev = IPRoute()
 
     def __repr__(self):
         return "\ndevice_id='%s', \nip='%s', \ndevice_pw='%s', \nuser_pw='%s', \nwgprvkey='%s', \nwgpubkey='%s'," \
@@ -83,6 +87,9 @@ class Gateway(Base):
 
     router = relationship("Router", back_populates='gateway')
 
+    network_id = Column(Integer, ForeignKey('network.id'))
+    network = relationship("Network", back_populates="gateway")
+
     def __init__(self, *args, **kwargs):
         self.name = kwargs.get('name')
         self.os = kwargs.get('os')
@@ -95,3 +102,22 @@ class Gateway(Base):
     def __repr__(self):
         return "name='%s', os='%s', ip='%s', host='%s', domain='%s', tld='%s', router='%s'" % (
                                 self.name, self.os, self.ip, self.host, self.domain, self.tld, self.router)
+
+
+class Network(Base):
+
+    __tablename__ = 'network'
+
+    id = Column(Integer, Sequence('nw_id_seq'), primary_key=True)
+    name = Column('name', String(32), unique=True)
+    enabled = Column('enabled', Boolean, default=False)
+    gateway = relationship("Gateway", back_populates='network')
+    router = relationship("Router", back_populates='network')
+
+    def __init__(self, *args, **kwargs):
+        self.name = kwargs.get('name')
+        self.enabled = kwargs.get('enabled')
+
+    def __repr__(self):
+        return "name='%s', enabled='%s'" % (self.name, self.enabled)
+

@@ -2,13 +2,21 @@ from os import environ
 from autobahn.asyncio.wamp import ApplicationSession, ApplicationRunner
 import json
 from tunfish.model import Router
-import iptc
+from tunfish.model import Gateway
+from tunfish.wamp.rpcs.GatewayRPC import GatewayRPC
 
-PATH = '/vagrant/config/'
+
+
+# PATH = '/vagrant/config/'
+PATH = '/vagrant/etc/tunfish/'
 CERTPATH = '/vagrant/certs/'
 
 
 class Component(ApplicationSession):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.gw_procedures = GatewayRPC(self)
 
     async def onJoin(self, details):
 
@@ -23,88 +31,18 @@ class Component(ApplicationSession):
         print(f"CONFIG: {config}")
 
         try:
-            self.call(u'com.portier.registergateway', config)
+            self.call(u'com.portier.register_gateway', config)
         except Exception as e:
             print(f"ERROR: can't register gateway {config['name']}, {e}")
             self.leave()
 
         # data json dict
-        def openInterface(data):
-            print(f"data: {data}")
 
-            # TODO: create wg keys
-            # TODO: replace subprocess !!!
-            # import subprocess
+        await self.register(self.gw_procedures.open_interface, u'com.gw.open_interface')
+        print("Registered com.gw.open_interface")
 
-            # subprocess.call(f"wg genkey | tee privatekey+{data['device_id']} | wg pubkey > publickey+{data['device_id']}", shell=True)
-            # with open(f"privatekey+{data['device_id']}", 'r') as f:
-            #     priv = f.read()
-            #     print(f"PRIV: {priv}")
-            #     f.close()
-            # with open(f"publickey+{data['device_id']}", 'r') as f:
-            #     pub = f.read()
-            #     print(f"PUB: {pub}")
-            #     f.close()
-            # subprocess.call(f"rm privatekey+{data['device_id']} && rm publickey+{data['device_id']}", shell=True)
-
-            import pysodium
-            from base64 import b64encode
-            keys = pysodium.crypto_box_keypair()
-
-            # TODO: open interface
-            router = Router()
-            router.device_id = data['device_id']
-            print(f"{data}")
-
-            router.dev.link('add', ifname=data['device_id'], kind='wireguard')
-            idx = router.dev.link_lookup(ifname=data['device_id'])[0]
-            print(f"IDX: {idx}")
-            # router.dev.addr('add', index=idx, address='192.168.42.50', mask=24)
-            router.dev.addr('add', index=idx, local='192.168.42.50', mask=32, address='192.168.100.10')
-            print(f"setup config")
-
-            # cfg = {
-            #     "interface": data['device_id'] + POSTFIX,
-            #     "listen_port": 42001,
-            #     "private_key": priv,
-            #     "peers": [{"public_key": data["wgpubkey"], "allowed_ips": ["0.0.0.0/0"]}]
-            # }
-
-            # router.wg.set_device(ifname=data['device_id'] + POSTFIX, config=cfg)
-            # setup wireguard interface
-            router.wg.set(interface=data['device_id'], private_key=b64encode(keys[0]), listen_port=42235)
-            # add peer
-            cfg = {'public_key': b64encode(data["wgpubkey"]), 'allowed_ips': ["0.0.0.0/0"]}
-            router.wg.set(interface=data['device_id'], private_key=b64encode(keys[0]), peer=cfg)
-
-            print(f"clientpubkey: {len(data['wgpubkey'])}")
-            print(f"clientpubkey: {data['wgpubkey']}")
-
-            router.dev.link('set', index=idx, state='up')
-
-            # iptables for wg-interface
-            chain = iptc.Chain(iptc.Table(iptc.Table.FILTER), "FORWARD")
-            rule = iptc.Rule()
-            rule.out_interface = "tf_gateone"
-            target = iptc.Target(rule, "ACCEPT")
-            rule.target = target
-            chain.insert_rule(rule)
-
-            chain = iptc.Chain(iptc.Table(iptc.Table.NAT), "POSTROUTING")
-            rule = iptc.Rule()
-            rule.out_interface = "eth0"
-            target = iptc.Target(rule, "MASQUERADE")
-            rule.target = target
-            chain.insert_rule(rule)
-
-            return b64encode(keys[0])
-
-        await self.register(openInterface, u'com.gw.openinterface')
-        print("Registered com.gw.openinterface")
-
-        # com.gw.closeinterface
-        # com.gw.status
-        # com.gw....
+        await self.register(self.gw_procedures.close_interface, u'com.gw.close_interface')
+        print("Registered com.gw.close_interface")
 
 
 class TunfishGateway:
@@ -113,7 +51,7 @@ class TunfishGateway:
 
         import six
         import ssl
-
+        print(f"WHOIS: {PATH + conf}.json")
         with open(PATH + conf + '.json', 'r') as f:
             clientdata = json.load(f)
 
@@ -130,7 +68,7 @@ class TunfishGateway:
         gateway_ctx.set_ciphers('ECDH+AESGCM')
 
         # url = environ.get("AUTOBAHN_DEMO_ROUTER", u"wss://127.0.0.1:8080/ws")
-        url = environ.get("AUTOBAHN_DEMO_ROUTER", u"wss://192.168.42.1:8080/ws")
+        url = environ.get("AUTOBAHN_DEMO_ROUTER", u"wss://172.16.42.2:8080/ws")
         print(f"URL: {url}")
         if six.PY2 and type(url) == six.binary_type:
             url = url.decode('utf8')

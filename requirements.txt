@@ -2,8 +2,9 @@ autobahn
 crossbar
 sqlalchemy
 sqlalchemy-utils
-psycopg2
+psycopg2-binary
 pyroute2
 msgpack
 pysodium
 python-iptables
+lazypy

@@ -1,8 +1,8 @@
 {
-  "name": "gateONE",
-  "ip": "192.168.42.50",
+  "name": "gateone",
+  "ip": "172.16.42.50",
   "type": "gateway",
-  "cf": "gateONE.pem",
-  "kf": "gateONE.key",
+  "cf": "gateone.pem",
+  "kf": "gateone.key",
   "caf": "ca.pem"
 }

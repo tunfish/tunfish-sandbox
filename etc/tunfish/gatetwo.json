@@ -1,8 +1,8 @@
 {
-  "name": "gateTWO",
-  "ip": "192.168.42.51",
+  "name": "gatetwo",
+  "ip": "172.16.42.51",
   "type": "gateway",
-  "cf": "gateTWO.pem",
-  "kf": "gateTWO.key",
+  "cf": "gatetwo.pem",
+  "kf": "gatetwo.key",
   "caf": "ca.pem"
 }

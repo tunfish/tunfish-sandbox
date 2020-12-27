@@ -1,0 +1,11 @@
+{
+  "device_id": "tf-0815",
+  "wgprvkey": "CyqisJ1eVXzjkMocWsRkAaXyXMBOxpDLFgTdDQTtXjM=",
+  "wgpubkey": "/46NfRLITFUDZAb1ZANxqrGb7hPsciTX0cFEXZBUKjk=",
+  "ip": "10.0.23.15",
+  "mask": "32",
+  "type": "client",
+  "cf": "tf-0815.pem",
+  "kf": "tf-0815.key",
+  "caf": "ca.pem"
+}

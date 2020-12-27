@@ -6,15 +6,16 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
 
 requires = [
-    'autobahn==19.11.1',
-    'crossbar==19.11.1',
-    'SQLAlchemy==1.3.11',
-    'SQLAlchemy-Utils==0.36.0',
-    #'psycopg2==2.8.4',
-    'pyroute2==0.5.7',
-    'msgpack==0.6.2',
-    'pysodium==0.7.3',
-    'python-iptables==0.14.0',
+    'autobahn',
+    'crossbar',
+    'SQLAlchemy',
+    'SQLAlchemy-Utils',
+    'psycopg2-binary',
+    'pyroute2',
+    'msgpack==1.0.0',
+    'pysodium',
+    'python-iptables',
+    'cryptography>=2.7',
 ]
 
 extras = {
@@ -71,6 +72,8 @@ setup(name='tunfish',
               'tf-client           = tunfish.main:start_client',
               'tf-gateway          = tunfish.main:start_gateway',
               'tf-server           = tunfish.main:start_server',
+              'tf-ctl              = tunfish.main:tf_control',
+              'tf-web              = tunfish.main:tf_web',
           ],
       },
 )

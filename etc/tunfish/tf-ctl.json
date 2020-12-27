@@ -1,0 +1,7 @@
+{
+  "name": "tfctl",
+  "type": "controller",
+  "cf": "tf-ctl.pem",
+  "kf": "tf-ctl.key",
+  "caf": "ca.pem"
+}

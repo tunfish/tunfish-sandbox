@@ -7,8 +7,10 @@ required_packages:
   pkg.installed:
     - names:
       - python3
-      - postgresql-9.6
-      - postgresql-server-dev-9.6
+      - postgresql-11
+      - postgresql-server-dev-11
+      - libsnappy-dev
+      - nginx
 
 python-pip:
   pkg.installed:
@@ -23,11 +25,11 @@ virtualenv:
     - require:
       - pkg: python-pip
 
-tf-env:
-  virtualenv.managed:
-    - name: /home/vagrant/venv
-    - cwd: /home/vagrant/venv/bin
-    - system_site_packages: True
+#tf-env:
+#  virtualenv.managed:
+#    - name: /home/vagrant/venv
+#    - cwd: /home/vagrant/venv/bin
+#    - system_site_packages: True
 
 #python_requirements:
 #  pip.installed:
@@ -38,11 +40,11 @@ tf-env:
 #  {% for r in pillar["requirements"]["python"] %}
 #  {% do pythonrequirements.append(r) %}
 #  {% endfor %}
-python_requirements:
-  pip.installed:
-    - pkgs:
-        {%- for r in pillar["requirements"]["python"] %}
-        - {{r}}
-        {%- endfor %}
-    - bin_env: /home/vagrant/venv/
-    - pip_bin: /home/vagrant/venv/bin/pip3
+#python_requirements:
+#  pip.installed:
+#    - pkgs:
+#        {%- for r in pillar["requirements"]["python"] %}
+#        - {{r}}
+#        {%- endfor %}
+#    - bin_env: /home/vagrant/venv/
+#    - pip_bin: /home/vagrant/venv/bin/pip3

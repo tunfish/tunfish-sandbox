@@ -46,6 +46,14 @@
             }
           },
           "url": "ws://127.0.0.1:8080/ws"
+        },
+        {
+          "type": "websocket",
+          "endpoint": {
+            "type": "tcp",
+            "port": 9000
+          },
+          "url": "ws://127.0.0.1:9000/ws"
         }
       ]
     }
