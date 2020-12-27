@@ -4,3 +4,11 @@
 /.vagrant
 /.venv*
 *.egg-info
+*.csr
+*.pem
+*.key
+dist
+*.srl
+*.priv
+*.pub
+*.pid
