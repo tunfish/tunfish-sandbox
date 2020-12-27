@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta content="initial-scale=1, shrink-to-fit=no, width=device-width" name="viewport">
+
+    <!-- CSS -->
+    <!-- Add Material font (Roboto) and Material icon as needed -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i|Roboto+Mono:300,400,700|Roboto+Slab:300,400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Add Material CSS, replace Bootstrap CSS -->
+    <link href="daemonite-material/css/material.min.css" rel="stylesheet">
+
+    <script src="autobahn.min.js"></script>
+    <script src="vue.min.js"></script>
+    <script src="tunfish_vue.js"></script>
+
+  </head>
+  <body>
+
+  <div id="app">
+    <tf-navbar></tf-navbar>
+    <nav class="navbar navbar-dark bg-dark" >
+    <!-- Navbar content -->
+      <!--<li class="nav-item dropdown" -->
+
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-on:click="getNetworkList()">
+          Network
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" id="dropdown-network" >
+          <a class="dropdown-item" href="#" v-for="network in networks" v-on:click="getNetworkData()">{{ network }}</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#" v-on:click="addNetwork()">add new network</a>
+        </div>
+      <!--</li-->
+    </nav>
+
+
+  </div>
+
+
+
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+
+    <!-- Then Material JavaScript on top of Bootstrap JavaScript -->
+    <script src="daemonite-material/js/material.min.js"></script>
+
+  </body>
+</html>
