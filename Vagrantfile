@@ -1,61 +1,34 @@
 ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
 
 $script = <<-'SCRIPT'
-echo "deb http://deb.debian.org/debian/ buster-backports main" > /etc/apt/sources.list.d/wireguard.list
-#printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
-apt update
-#sudo apt-get -yq install linux-headers-amd64
-#sudo apt-get -yq --no-install-suggests --no-install-recommends --allow-unauthenticated install wireguard
-sudo apt-get -yq --allow-unauthenticated install wireguard
-# cd /vagrant/
-# sudo python3 -E /vagrant/setup.py develop
+    # install wireguard
+    echo "deb http://deb.debian.org/debian/ buster-backports main" > /etc/apt/sources.list.d/wireguard.list
+    apt update
+    sudo apt-get -yq --allow-unauthenticated install wireguard
+    # setup.py
+    virtualenv -p python3 /home/vagrant/.venv3
+    source /home/vagrant/.venv3/bin/activate
+    cd /vagrant/
+    python3 setup.py develop
+SCRIPT
+
+$portier_database = <<-'SCRIPT'
+    # create database and example entrys
+    sh /vagrant/tools/create_db_user.sh
+    source /home/vagrant/.venv3/bin/activate
+    python3 /vagrant/src/tunfish/tools/gendb.py
 SCRIPT
 
 
 
 Vagrant.configure("2") do |config|
 
-# debian 10 testing environment
-  config.vm.define "tf-debian10" do |crossbar|
-    crossbar.vm.box = "generic/debian10"
-    crossbar.vm.hostname = 'tf-debian10'
-    crossbar.vm.box_url = "generic/debian10"
-
-    crossbar.vm.box_version = "3.0.8"
-
-    # Crossbar is running on the public network.
-    crossbar.vm.network :private_network, ip: "172.16.255.2", netmask: '255.255.0.0'
-
-    crossbar.vm.synced_folder ".", "/vagrant"
-    crossbar.vm.provider :libvirt do |v|
-      v.memory="512"
-      v.storage :file, :size => '4G'
-    end
-
-    ## For masterless, mount your salt file root ???
-    crossbar.vm.synced_folder "./salt/roots/salt/", "/srv/salt/"
-    crossbar.vm.synced_folder "./salt/roots/pillar/", "/srv/pillar/"
-
-
-
-    config.vm.provision :salt do |salt|
-      salt.masterless = true
-      salt.run_highstate = true
-      salt.verbose = true
-      salt.python_version = "3"
-      salt.bootstrap_script = "setup-salt.sh"
-    end
-
-    crossbar.vm.provision "shell", inline: $script
-  end
-
-
   config.vm.define "tf-crossbar" do |crossbar|
     crossbar.vm.box = "generic/debian10"
     crossbar.vm.hostname = 'tf-crossbar'
     crossbar.vm.box_url = "generic/debian10"
 
-    crossbar.vm.box_version = "3.0.30"
+    crossbar.vm.box_version = "3.1.18"
 
     # Crossbar is running on the public network.
     crossbar.vm.network :private_network, ip: "172.16.42.2", netmask: '255.255.0.0'
@@ -63,7 +36,10 @@ Vagrant.configure("2") do |config|
     crossbar.vm.synced_folder ".", "/vagrant"
 
     # salt bootstrap
-    crossbar.vm.provision "shell", inline: "sh /vagrant/setup-salt.sh"
+    crossbar.vm.provision "shell", inline: "sh /vagrant/tools/setup-salt.sh"
+
+    # setup.py
+    # crossbar.vm.provision "shell", inline: "python3 /vagrant/setup.py develop"
 
     crossbar.vm.provider :libvirt do |v|
       #v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
@@ -94,9 +70,12 @@ Vagrant.configure("2") do |config|
     portier.vm.hostname = 'tf-portier'
     portier.vm.box_url = "generic/debian10"
 
-    portier.vm.box_version = "3.0.30"
+    portier.vm.box_version = "3.1.18"
 
     portier.vm.synced_folder ".", "/vagrant"
+
+    # salt bootstrap
+    portier.vm.provision "shell", inline: "sh /vagrant/tools/setup-salt.sh"
 
     # Portier is running in DMZ.
     portier.vm.network :private_network, ip: "172.16.23.2", netmask: "255.255.0.0"
@@ -125,6 +104,7 @@ Vagrant.configure("2") do |config|
     end
 
     portier.vm.provision "shell", inline: $script
+    portier.vm.provision "shell", inline: $portier_database
 
   end
 
@@ -133,9 +113,12 @@ Vagrant.configure("2") do |config|
     gateone.vm.hostname = 'tf-gateway-1'
     gateone.vm.box_url = "generic/debian10"
 
-    gateone.vm.box_version = "3.0.30"
+    gateone.vm.box_version = "3.1.18"
 
     gateone.vm.synced_folder ".", "/vagrant"
+
+    # salt bootstrap
+    gateone.vm.provision "shell", inline: "sh /vagrant/tools/setup-salt.sh"
 
     # Wireguard gateways are also on the public network.
     gateone.vm.network :private_network, ip: "172.16.42.50", netmask: "255.255.0.0"
@@ -170,9 +153,12 @@ Vagrant.configure("2") do |config|
     client.vm.hostname = 'tf-client-1'
     client.vm.box_url = "generic/debian10"
 
-    client.vm.box_version = "3.0.30"
+    client.vm.box_version = "3.1.18"
 
     client.vm.synced_folder ".", "/vagrant"
+
+    # salt bootstrap
+    client.vm.provision "shell", inline: "sh /vagrant/tools/setup-salt.sh"
 
     # This is the roadwarrior client.
     client.vm.network :private_network, ip: "172.16.100.10", netmask: "255.255.0.0"
