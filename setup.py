@@ -8,8 +8,8 @@ README = open(os.path.join(here, 'README.rst')).read()
 requires = [
     'autobahn',
     'crossbar',
-    'SQLAlchemy',
     'SQLAlchemy-Utils',
+    'SQLAlchemy==1.3.22',
     'psycopg2-binary',
     'pyroute2',
     'msgpack==1.0.0',
