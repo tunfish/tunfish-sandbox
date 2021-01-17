@@ -1,25 +1,29 @@
 ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
 
-$script = <<-'SCRIPT'
+$install_wireguard = <<-'SCRIPT'
     # install wireguard
     echo "deb http://deb.debian.org/debian/ buster-backports main" > /etc/apt/sources.list.d/wireguard.list
     apt update
     sudo apt-get -yq --allow-unauthenticated install wireguard
-    # setup.py
-    virtualenv -p python3 /home/vagrant/.venv3
-    source /home/vagrant/.venv3/bin/activate
-    cd /vagrant/
-    python3 setup.py develop
 SCRIPT
+
+#$script_node = <<-'SCRIPT'
+#    source /home/vagrant/.venv/bin/activate
+#    pip install -e /vagrant/node
+#SCRIPT
 
 $portier_database = <<-'SCRIPT'
-    # create database and example entrys
-    sh /vagrant/tools/create_db_user.sh
-    source /home/vagrant/.venv3/bin/activate
-    python3 /vagrant/src/tunfish/tools/gendb.py
+    # create database
+    sh /vagrant/sandbox/tools/create_db_user.sh
 SCRIPT
 
-
+$install_dependencies = <<-'SCRIPT'
+    # python3 -m venv /home/vagrant/.venv
+    # chown -R vagrant:vagrant /home/vagrant/.venv
+    # source /home/vagrant/.venv/bin/activate
+    cd /vagrant/sandbox/
+    python3 setup.py develop
+SCRIPT
 
 Vagrant.configure("2") do |config|
 
@@ -33,10 +37,10 @@ Vagrant.configure("2") do |config|
     # Crossbar is running on the public network.
     crossbar.vm.network :private_network, ip: "172.16.42.2", netmask: '255.255.0.0'
 
-    crossbar.vm.synced_folder ".", "/vagrant"
+    crossbar.vm.synced_folder "../", "/vagrant"
 
     # salt bootstrap
-    crossbar.vm.provision "shell", inline: "sh /vagrant/tools/setup-salt.sh"
+    crossbar.vm.provision "shell", inline: "sh /vagrant/sandbox/tools/setup-salt.sh"
 
     # setup.py
     # crossbar.vm.provision "shell", inline: "python3 /vagrant/setup.py develop"
@@ -61,7 +65,7 @@ Vagrant.configure("2") do |config|
       #salt.bootstrap_script = "setup-salt.sh"
     end
 
-    crossbar.vm.provision "shell", inline: $script
+    crossbar.vm.provision "shell", inline: $install_dependencies
 
   end
 
@@ -72,10 +76,10 @@ Vagrant.configure("2") do |config|
 
     portier.vm.box_version = "3.1.18"
 
-    portier.vm.synced_folder ".", "/vagrant"
+    portier.vm.synced_folder "../", "/vagrant"
 
     # salt bootstrap
-    portier.vm.provision "shell", inline: "sh /vagrant/tools/setup-salt.sh"
+    portier.vm.provision "shell", inline: "sh /vagrant/sandbox/tools/setup-salt.sh"
 
     # Portier is running in DMZ.
     portier.vm.network :private_network, ip: "172.16.23.2", netmask: "255.255.0.0"
@@ -103,7 +107,7 @@ Vagrant.configure("2") do |config|
       #salt.bootstrap_script = "setup-salt.sh"
     end
 
-    portier.vm.provision "shell", inline: $script
+    portier.vm.provision "shell", inline: $install_dependencies
     portier.vm.provision "shell", inline: $portier_database
 
   end
@@ -115,10 +119,10 @@ Vagrant.configure("2") do |config|
 
     gateone.vm.box_version = "3.1.18"
 
-    gateone.vm.synced_folder ".", "/vagrant"
+    gateone.vm.synced_folder "../", "/vagrant"
 
     # salt bootstrap
-    gateone.vm.provision "shell", inline: "sh /vagrant/tools/setup-salt.sh"
+    gateone.vm.provision "shell", inline: "sh /vagrant/sandbox/tools/setup-salt.sh"
 
     # Wireguard gateways are also on the public network.
     gateone.vm.network :private_network, ip: "172.16.42.50", netmask: "255.255.0.0"
@@ -143,7 +147,8 @@ Vagrant.configure("2") do |config|
     ##  salt.bootstrap_script = "setup-salt.sh"
     end
 
-    gateone.vm.provision "shell", inline: $script
+    gateone.vm.provision "shell", inline: $install_wireguard
+    gateone.vm.provision "shell", inline: $install_dependencies
 
   end
 
@@ -155,10 +160,10 @@ Vagrant.configure("2") do |config|
 
     client.vm.box_version = "3.1.18"
 
-    client.vm.synced_folder ".", "/vagrant"
+    client.vm.synced_folder "../", "/vagrant"
 
     # salt bootstrap
-    client.vm.provision "shell", inline: "sh /vagrant/tools/setup-salt.sh"
+    client.vm.provision "shell", inline: "sh /vagrant/sandbox/tools/setup-salt.sh"
 
     # This is the roadwarrior client.
     client.vm.network :private_network, ip: "172.16.100.10", netmask: "255.255.0.0"
@@ -183,8 +188,8 @@ Vagrant.configure("2") do |config|
       #salt.bootstrap_script = "setup-salt.sh"
     end
 
-    client.vm.provision "shell", inline: $script
-
+    client.vm.provision "shell", inline: $install_wireguard
+    client.vm.provision "shell", inline: $install_dependencies
   end
 
 end

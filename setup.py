@@ -16,6 +16,7 @@ requires = [
     'pysodium',
     'python-iptables',
     'cryptography>=2.7',
+    'six>=1.13.0',
 ]
 
 extras = {
@@ -56,8 +57,8 @@ setup(name='tunfish',
       author_email='hello@tunfish.org',
       url='https://github.com/tunfish/tunfish-system',
       keywords='',
-      package_dir={'': 'src'},
-      packages=find_packages(),
+      #package_dir={'': ''},
+      #packages=find_packages(),
       include_package_data=True,
       package_data={
       },
