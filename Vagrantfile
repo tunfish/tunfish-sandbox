@@ -3,7 +3,7 @@ ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
 $install_wireguard = <<-'SCRIPT'
     # install wireguard
     echo "deb http://deb.debian.org/debian/ buster-backports main" > /etc/apt/sources.list.d/wireguard.list
-    apt update
+    sudo apt update
     sudo apt-get -yq --allow-unauthenticated install wireguard
 SCRIPT
 
@@ -28,16 +28,20 @@ SCRIPT
 Vagrant.configure("2") do |config|
 
   config.vm.define "tf-crossbar" do |crossbar|
+    #crossbar.vm.box = "debian/testing64"
     crossbar.vm.box = "generic/debian10"
-    crossbar.vm.hostname = 'tf-crossbar'
+    crossbar.vm.hostname = "tf-crossbar"
+    #crossbar.vm.box_url = "debian/testing64"
     crossbar.vm.box_url = "generic/debian10"
 
-    crossbar.vm.box_version = "3.1.18"
+    #crossbar.vm.box_version = "20210124.1"
+    #crossbar.vm.box_version = "20200607.1"
+    crossbar.vm.box_version = "3.2.2"
 
     # Crossbar is running on the public network.
     crossbar.vm.network :private_network, ip: "172.16.42.2", netmask: '255.255.0.0'
 
-    crossbar.vm.synced_folder "../", "/vagrant"
+    crossbar.vm.synced_folder "../", "/vagrant", type: "nfs", nfs_version: 4, nfs_udp: false, mount_options: ["rw", "vers=4", "tcp", "nolock"]
 
     # salt bootstrap
     crossbar.vm.provision "shell", inline: "sh /vagrant/sandbox/tools/setup-salt.sh"

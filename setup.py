@@ -12,7 +12,7 @@ requires = [
     'SQLAlchemy==1.3.22',
     'psycopg2-binary',
     'pyroute2',
-    'msgpack==1.0.0',
+    'msgpack==1.0.2',
     'pysodium',
     'python-iptables',
     'cryptography>=2.7',

@@ -1,7 +1,7 @@
-uptodate:
-  pkg.uptodate:
-    - refresh: True
-    - dist_upgrade: True
+#uptodate:
+#  pkg.uptodate:
+#    - refresh: False
+#    - dist_upgrade: False
 
 required_packages:
   pkg.installed:
@@ -10,7 +10,7 @@ required_packages:
       - postgresql-11
       - postgresql-server-dev-11
       - libsnappy-dev
-      - nginx
+      #- nginx
 
 python-pip:
   pkg.installed:
@@ -18,12 +18,12 @@ python-pip:
       - python-pip
       - python3-pip
 
-virtualenv:
-  pip.installed:
-    - name: virtualenv
-    - bin_env: '/usr/bin/pip3'
-    - require:
-      - pkg: python-pip
+#virtualenv:
+#  pip.installed:
+#    - name: virtualenv
+#    - bin_env: '/usr/bin/pip3'
+#    - require:
+#      - pkg: python-pip
 
 #tf-env:
 #  virtualenv.managed:

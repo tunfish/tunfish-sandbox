@@ -43,9 +43,12 @@ class PortierServer:
         # TLS
         # Setup server
 
-        cf = '/vagrant/certs/server.pem'
-        kf = '/vagrant/certs/server.key'
-        caf = '/vagrant/certs/ca.pem'
+        # cf = '/vagrant/certs/server.pem'
+        # kf = '/vagrant/certs/server.key'
+        # caf = '/vagrant/certs/ca.pem'
+        cf = '/home/tunfish/etc/tunfish/ca/server.pem'
+        kf = '/home/tunfish/etc/tunfish/ca/server.key'
+        caf = '/home/tunfish/etc/tunfish/ca/ca.pem'
 
         server_ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         server_ctx.verify_mode = ssl.CERT_REQUIRED
