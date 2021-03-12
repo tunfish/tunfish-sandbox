@@ -1,20 +1,27 @@
 {
 
+  // Configuration version
+  "version": 1,
+
   // The device ID
   "device_id": "tf-0815",
 
-  // Key and certificate material to authenticate with WAMP message broker.
-  "cf": "tf-0815.pem",
-  "kf": "tf-0815.key",
-  "caf": "ca.pem",
+  // Key and certificate material to authenticate with WAMP message broker
+  "bus": {
+    "broker": "wss://172.16.42.2:8080/ws",
+    "key": "tf-0815.key",
+    "cert": "tf-0815.pem",
+    "cacert": "ca.pem",
+  },
 
-  // WireGuard private and public key.
-  "wgprvkey": "CyqisJ1eVXzjkMocWsRkAaXyXMBOxpDLFgTdDQTtXjM=",
-  "wgpubkey": "/46NfRLITFUDZAb1ZANxqrGb7hPsciTX0cFEXZBUKjk=",
-
-  // Client network information.
-  "ip": "10.0.23.15",
-  "mask": "32",
-  "type": "client",
+  // WireGuard settings
+  // https://wiki.archlinux.org/index.php/WireGuard#Client_config
+  "wireguard": {
+    "endpoint": "172.16.100.16:51820",
+    "private_key": "CyqisJ1eVXzjkMocWsRkAaXyXMBOxpDLFgTdDQTtXjM=",
+    "public_key": "/46NfRLITFUDZAb1ZANxqrGb7hPsciTX0cFEXZBUKjk=",
+    "network": "swarmone",
+    "address": "10.0.23.15/32",
+  },
 
 }
