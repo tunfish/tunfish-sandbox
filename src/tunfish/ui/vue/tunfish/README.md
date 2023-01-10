@@ -1,5 +1,11 @@
 # tunfish
 
+## Environment setup
+```
+source bootstrap.sh
+```
+
+
 ## Project setup
 ```
 npm install
@@ -18,6 +24,14 @@ npm run build
 ### Lints and fixes files
 ```
 npm run lint
+```
+
+### Audit and update dependencies
+```
+npm audit
+```
+```
+npm audit fix
 ```
 
 ### Customize configuration
