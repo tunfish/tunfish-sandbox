@@ -33,6 +33,9 @@ npm audit
 ```
 npm audit fix
 ```
+```
+npm install --package-lock-only
+```
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).

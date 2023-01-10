@@ -26,6 +26,22 @@
     "vuex": "^3.4.0",
     "webpack": "^4.44.1"
   },
+  "overrides": {
+    "ansi-regex": "^6.0.1",
+    "decode-uri-component": "^0.2.1",
+    "ejs": "^3.1.7",
+    "glob-parent": "^5",
+    "is-svg": "^4.2.2",
+    "json5": "^1.0.2",
+    "loader-utils": "^2.0.3",
+    "node-forge": "^1.0.0",
+    "nth-check": "^2.0.1",
+    "qs": "^6.5.3",
+    "scss-tokenizer": "^0.4",
+    "ssri": "^6.0.2",
+    "tar": ">=3.2.3",
+    "trim-newlines": ">=3.0.1"
+  },
   "eslintConfig": {
     "root": true,
     "env": {
